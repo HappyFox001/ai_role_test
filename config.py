@@ -12,8 +12,11 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
 
 # Application Settings
 MAX_CONVERSATION_ROUNDS = int(os.getenv("MAX_CONVERSATION_ROUNDS", "30"))
-CONVERSATION_HISTORY_FILE = os.getenv("CONVERSATION_HISTORY_FILE", "conversation_history.json")
 STREAM_CHUNK_SIZE = int(os.getenv("STREAM_CHUNK_SIZE", "50"))
+
+# Session-based storage settings (no file persistence needed)
+# Each browser tab/window maintains independent conversation history
+# History is automatically cleared when session ends (page refresh/close)
 
 # Emotion and State Configuration
 EMOTIONS = [

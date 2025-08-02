@@ -2,13 +2,18 @@ import streamlit as st
 from models import Message, ConversationHistory
 from character_system import CharacterSystem
 from gemini_client import GeminiClient
-from config import MAX_CONVERSATION_ROUNDS, CONVERSATION_HISTORY_FILE
+from config import MAX_CONVERSATION_ROUNDS
 
+# Initialize session-based conversation history
 if "conversation_history" not in st.session_state:
     st.session_state.conversation_history = ConversationHistory(
-        max_rounds=MAX_CONVERSATION_ROUNDS,
-        json_file_path=CONVERSATION_HISTORY_FILE
+        max_rounds=MAX_CONVERSATION_ROUNDS
     )
+
+# Initialize session start time for logging
+if "session_start_time" not in st.session_state:
+    from datetime import datetime
+    st.session_state.session_start_time = datetime.now()
 if "character_system" not in st.session_state:
     st.session_state.character_system = CharacterSystem()
 if "gemini_client" not in st.session_state:
@@ -37,18 +42,41 @@ with st.sidebar:
         st.write(f"- {dislike}")
     
     st.divider()
-    st.title("Conversation Status")
-    current_messages = len(st.session_state.conversation_history.messages)
-    user_messages = sum(1 for msg in st.session_state.conversation_history.messages if msg.role == "user")
-    assistant_messages = sum(1 for msg in st.session_state.conversation_history.messages if msg.role == "assistant")
-    st.write(f"**Current Rounds:** {user_messages}/{MAX_CONVERSATION_ROUNDS}")
-    st.write(f"**Total Messages:** {current_messages} (User: {user_messages}, Assistant: {assistant_messages})")
-    st.write(f"**History File:** {CONVERSATION_HISTORY_FILE}")
+    st.title("Session Status")
     
-    if st.button("Clear History"):
-        st.session_state.conversation_history.messages = []
-        st.session_state.conversation_history.save_to_json()
+    # Get session statistics
+    stats = st.session_state.conversation_history.get_session_stats()
+    
+    # Display session info
+    st.write(f"**Session ID:** `{stats['session_id']}`")
+    st.write(f"**Current Rounds:** {stats['user_messages']}/{stats['max_rounds']}")
+    st.write(f"**Total Messages:** {stats['total_messages']} (User: {stats['user_messages']}, Assistant: {stats['assistant_messages']})")
+    
+    # Session duration
+    from datetime import datetime
+    session_duration = datetime.now() - st.session_state.session_start_time
+    duration_minutes = int(session_duration.total_seconds() / 60)
+    st.write(f"**Session Duration:** {duration_minutes} minutes")
+    
+    # Storage info
+    st.caption("💾 Data stored in browser session only - independent per tab/window")
+    
+    if st.button("Clear Session History"):
+        st.session_state.conversation_history.clear_history()
         st.rerun()
+    
+    # Session log toggle
+    st.divider()
+    if st.checkbox("Show Session Log", help="Display conversation history for debugging"):
+        st.subheader("Session Conversation Log")
+        if st.session_state.conversation_history.messages:
+            for i, msg in enumerate(st.session_state.conversation_history.messages):
+                timestamp = msg.timestamp.strftime("%H:%M:%S")
+                role_emoji = "👤" if msg.role == "user" else "🤖"
+                content_preview = msg.content[:50] + "..." if len(msg.content) > 50 else msg.content
+                st.caption(f"{i+1}. [{timestamp}] {role_emoji} {msg.role}: {content_preview}")
+        else:
+            st.caption("No messages in current session")
 
 st.title("AI Companion Chat")
 
