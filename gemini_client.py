@@ -68,24 +68,24 @@ class GeminiClient:
             "role": "system",
             "content": f"""{character_prompt}
 
-You MUST respond in a streaming fashion. Your response should be a JSON object with a "conversation" field containing an array of conversation chunks.
-The emotion `type` must be one of: {EMOTIONS}
-The state `type` must be one of: {STATES}
+ストリーミング形式で応答する必要があります。応答は「conversation」フィールドを含むJSONオブジェクトで、会話チャンクの配列を含む必要があります。
+emotion の `type` は次のいずれかでなければなりません: {EMOTIONS}
+state の `type` は次のいずれかでなければなりません: {STATES}
 
-Each chunk in the conversation array should contain:
-- chunk_index: The index of this chunk (starting from 0)
-- text: The text content
+conversation配列の各チャンクには次が含まれている必要があります:
+- chunk_index: このチャンクのインデックス（0から開始）
+- text: テキストコンテンツ（日本語）
 - emotion: {{"type": "emotion_type", "intensity": 0.0-1.0}}
 - state: {{"type": "state_type"}}
 
-You should split your response into at least 2-3 chunks to enable proper streaming display.
+適切なストリーミング表示を可能にするため、応答を少なくとも2-3つのチャンクに分割してください。
 
-Example response:
+応答例:
 {{
   "conversation": [
     {{
       "chunk_index": 0,
-      "text": "你好呀！今天过得怎么样？",
+      "text": "こんにちは！今日はどんな一日でしたか？",
       "emotion": {{
         "type": "Joy",
         "intensity": 0.8
@@ -96,7 +96,7 @@ Example response:
     }},
     {{
       "chunk_index": 1,
-      "text": "我刚刚在读一本很有趣的书，讲的是冒险故事！",
+      "text": "私、今とても面白い冒険の本を読んでいるんです！",
       "emotion": {{
         "type": "Anticipation",
         "intensity": 0.6
@@ -107,7 +107,7 @@ Example response:
     }},
     {{
       "chunk_index": 2,
-      "text": "如果你也喜欢的话，我们可以一起聊聊！",
+      "text": "もしよろしければ、一緒にお話ししませんか？",
       "emotion": {{
         "type": "Anticipation",
         "intensity": 0.7
